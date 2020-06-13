@@ -1,14 +1,9 @@
-import jieba
-import pickle
 import random
+import pickle
+import jieba
 
 
-def inverted_index_match():
-    print("请输入你的问题：")
-
-    # user_input = input()
-    user_input = '密码修改'
-
+def inverted_index_match(user_input):
     with open('data/stopwords.txt') as file:
         stopwords = file.read().split('\n')
 
@@ -38,7 +33,7 @@ def inverted_index_match():
     if len(docs_qid) > 10:
         docs_qid = random.sample(docs_qid, 10)
 
-    print(docs_qid)
+    # print(docs_qid)
     return user_input, docs_qid
 
 

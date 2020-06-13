@@ -22,8 +22,8 @@ weightpara = 1e-3
 
 
 # 词向量文件，词频文件，超参数设置
-wordfile = '../data/word2vec_100d.txt'
-weightfile = '../data/words_count.txt'
+wordfile = 'data/word2vec_100d.txt'
+weightfile = 'data/words_count.txt'
 
 
 # 详见data_io.py

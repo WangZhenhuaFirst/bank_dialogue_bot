@@ -1,5 +1,5 @@
 import math
-import match
+import match_inverted_index
 import jieba
 import pandas as pd
 
@@ -46,10 +46,30 @@ class BM25(object):
             scores.append(score)
         return scores
 
+    def rank(user_input, docs_questions):
+        with open('data/stopwords.txt') as file:
+            stopwords = file.read().split('\n')
+        data = pd.read_csv('data/dataset.csv')
+        
+        cut_questions = []
+        for question in docs_questions:
+            question = list(x for x in jieba.cut(question) if x not in stopwords)
+            cut_questions.append(question)
+
+        s = BM25(cut_questions)
+        scores = s.simall(user_input)
+        question_scores = dict(zip(docs_questions, scores))
+        sorted_question_scores = sorted(question_scores.items(), key=lambda item:item[1])
+        print(sorted_question_scores)
+        return sorted_question_scores
+        
+
+
 
 if __name__ == "__main__":
-    user_input, docs_qid = match.inverted_index_match()
-    # print(user_input)
+    print("请输入你的问题：")
+    user_input = input()
+    user_input, docs_qid = match_inverted_index.inverted_index_match(user_input)
     with open('data/stopwords.txt') as file:
         stopwords = file.read().split('\n')
     questions = []
@@ -60,8 +80,5 @@ if __name__ == "__main__":
         questions.append(question)
     print(questions)
     s = BM25(questions)
-    print(f"s.f: {s.f}")
-    print(f"s.df: {s.df}")
-    print(f"s.idf: {s.idf}")
     rank = s.simall(user_input)
     print(rank)

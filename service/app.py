@@ -1,96 +1,37 @@
-import datetime
-from flask import Flask, session, redirect, Response, request, render_template, url_for, flash
-from redis import StrictRedis
+import sys
+sys.path.append('/Users/huazai/Desktop/学习/项目4/project_4/model')
 
-app = Flask(__name__)
-
-# session cookie密钥
-app.secret_key = 'pardon110'
-
-# 连接redis数据库,默认是零号库,可随便更改
-rds = StrictRedis(db=3)
+import match_inverted_index
+import match_sentvec
+import crawler
+from rank import BM25
+import pandas as pd
 
 
-def event_stream():
-    '''消息生成器'''
+def get_answer():
+    print("请输入你的问题：")
+    user_input = input()
+    user_input_cut, index_docs_qid = match_inverted_index.inverted_index_match(user_input)
+    index_docs_questions = []
+    data = pd.read_csv('data/dataset.csv')
+    for qid in index_docs_qid:
+        question = data.loc[data.qid == qid, 'question'].values[0]
+        index_docs_questions.append(question)
 
-    # 从数据库连接上获取发布订阅管理对象实例
-    pub = rds.pubsub()
-
-    # 在管理订阅(建立通道)频道
-    pub.subscribe('chat')
-
-    # 监听频道信息
-    for message in pub.listen():
-        print(type(message['data']), type(message), message)
-
-        # 只响应有消息的（字节），首次无消息返回的为int状态码对象，直接忽略
-        if isinstance(message['data'], bytes):
-            # 转为utf8字符串，发送 SSE（Server Send Event）协议格式的数据
-            yield 'data: %s\n\n' % message['data'].decode()
-
-
-# 首次访问需要登录
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        session['username'] = request.form['user']
-        # 重定向到home处理器
-        flash('您已经成功登录！')
-        return redirect(url_for('home'))
-    return '<p><strong>登录</strong></p><form action="" method="post">用户名: <input name="user">'
-
-
-# 接收js发送过来的消息
-@app.route('/post', methods=['POST'])
-def post():
-    # 获取表单提交内容
-    message = request.form['message']
-    # 获取当前请求对象的session实例
-    user = session.get('username', 'anonymous')
-    # 返回一个指定字段的时间值
-    now = datetime.datetime.now().replace(microsecond=0).time()
-    # 通过频道发布消息
-    rds.publish('chat', u'[%s] %s: %s' % (now.isoformat(), user, message))
-    # 响应对象
-    return Response(status=204)
-
-
-# 事件流接口
-@app.route('/stream')
-def stream():
-    return Response(event_stream(), mimetype="text/event-stream")
-
-
-@app.route('/')
-@app.route('/<name>')
-def home(name=None):
-    # 通过路由参数或querystring注册为当前用户
-    if name or len(request.args) > 0:
-        session['username'] = name if name else request.args.get('user', '')
-        # 消息闪现（存储在session内，模板页用完即丢）
-        flash(session['username']+'已经成功登录，加入聊天室！')
-    # 否则强制用户登录
-    if 'username' not in session:
-        return redirect('/login')
-
-    # 模板渲染
-    data = {
-        "username": session['username'],
-        "tip": "正在聊天中..."
-    }
-
-    # 关键字参数解包，返回元组（框架会自动解析为一个完整的response对象）
-    return render_template('home.html', **data), 200
-
-
-@app.route('/logout')
-def logout():
-    # 清空当前session信息
-    session.pop('username', None)
-    return redirect(url_for('login'))
+    sentvec_docs_questions = match_sentvec.sentvec_match(user_input)
+    docs_questions = index_docs_questions + sentvec_docs_questions
+    sorted_question_scores = BM25.rank(user_input_cut, docs_questions)    
+    
+    answer = '对不起，我没有听懂您的问题，请把问题描述地详细一点，我会努力理解您的问题的'
+    if sorted_question_scores:
+        answer = data.loc[data.question == sorted_question_scores[0][0], 'answer'].values[0]
+    else:
+        question_answer_dicts = crawler.crawl_answer()
+        if question_answer_dicts:
+            answer = question_answer_dicts[0][1]
+    print(answer)
+    
 
 
 if __name__ == '__main__':
-    # app.debug = True
-    app.run(host='0.0.0.0', debug=True)
+    get_answer()
