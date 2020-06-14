@@ -1,0 +1,136 @@
+{% extends "bootstrap/base.html" %}
+
+{% block doc %}
+<!DOCTYPE html>
+<html>
+<title>银行小助理</title>
+
+<head>
+    <link rel="shortcut icon" type="image/x-icon"
+        href="https://user-images.githubusercontent.com/20112458/49326597-773b7280-f57a-11e8-853d-20ed61d18b0d.png" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            font-family: monospace;
+            background-color: rgb(241, 238, 238);
+        }
+
+        h1 {
+            /* background-color: yellow; */
+            display: inline-block;
+            font-size: 3em;
+            margin-top: 20px;
+            /* padding: 10px; */
+        }
+
+        #chatbox {
+            margin-left: auto;
+            margin-right: auto;
+            width: 95%;
+            margin-top: 20px;
+            padding-bottom: 200px;
+        }
+
+        #userInput {
+            margin-left: auto;
+            margin-right: auto;
+            width: 90%;
+        }
+
+        #textInput {
+            width: 70%;
+            font-family: monospace;
+            font-size: 24px;
+        }
+
+
+        .userText {
+            color: black;
+            font-family: monospace;
+            font-size: 17px;
+            text-align: right;
+            line-height: 35px;
+        }
+
+        .userText span {
+            background-color: rgb(152, 253, 44);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .botText {
+            color: black;
+            font-family: monospace;
+            font-size: 17px;
+            text-align: left;
+            line-height: 35px;
+        }
+
+        .botText span {
+            background-color: white;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .boxed {
+            margin-left: auto;
+            margin-right: auto;
+            width: 90%;
+            margin-top: 30px;
+            border: 1px solid green;
+        }
+    </style>
+</head>
+
+<body>
+    <center>
+        <h1>银行小助理</h1>
+    </center>
+    <div class="boxed">
+        <div>
+            <div id="chatbox">
+
+                <p class="botText"><img src="static/bot.png" alt="CANDICE" style="width:32px;height:32px;" />
+                    <span>您好! 我是钱钱，您的银行小助理</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div id="userInput" class="input-group mb-3">
+        <input id="textInput" type="text" name="msg" class="form-control" placeholder="请输入您的问题">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="submit">发送</button>
+        </div>
+    </div>
+
+    <script>
+        function getBotResponse() {
+            var rawText = $("#textInput").val();
+            var userHtml = '<p class="userText"><span>' + rawText + '</span><img src="static/user.jpg" alt="CANDICE" style="width:32px;height:32px;" / ></p>';
+            $("#textInput").val("");
+            $("#chatbox").append(userHtml);
+            document
+                .getElementById("userInput")
+                .scrollIntoView({ block: "start", behavior: "smooth" });
+            $.get("/get", { msg: rawText }).done(function (data) {
+                var botHtml = '<p class="botText"><img src="static/bot.png" alt="CANDICE" style="width:32px;height:32px;" /><span>' + data + "</span></p>";
+                $("#chatbox").append(botHtml);
+                document
+                    .getElementById("userInput")
+                    .scrollIntoView({ block: "start", behavior: "smooth" });
+            });
+        }
+        $("button").click(function () {
+            // if (e.which == 13) {
+            getBotResponse();
+            // }
+        });
+    </script>
+</body>
+
+</html>
+{% endblock doc %}

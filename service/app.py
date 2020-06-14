@@ -7,10 +7,22 @@ import crawler
 from rank import BM25
 import pandas as pd
 
+from flask import Flask, render_template, request
+from flask_socketio import SocketIO
+from flask_bootstrap import Bootstrap
 
-def get_answer():
-    print("请输入你的问题：")
-    user_input = input()
+
+app = Flask(__name__)
+app.config['DEBUG'] = True
+Bootstrap(app)
+
+@app.route("/")
+def home():    
+    return render_template("home.html") 
+
+@app.route("/get")
+def get_bot_response():
+    user_input = request.args.get('msg')
     user_input_cut, index_docs_qid = match_inverted_index.inverted_index_match(user_input)
     index_docs_questions = []
     data = pd.read_csv('data/dataset.csv')
@@ -29,9 +41,12 @@ def get_answer():
         question_answer_dicts = crawler.crawl_answer()
         if question_answer_dicts:
             answer = question_answer_dicts[0][1]
-    print(answer)
+    print(answer)    
+    return answer 
+
+if __name__ == "__main__":    
+    app.run()
+
+
     
 
-
-if __name__ == '__main__':
-    get_answer()
