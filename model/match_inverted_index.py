@@ -2,16 +2,17 @@ import random
 import pickle
 import jieba
 
-
-def inverted_index_match(user_input):
-    with open('data/stopwords.txt') as file:
+with open('data/stopwords.txt') as file:
         stopwords = file.read().split('\n')
 
-    with open('data/inverted_index.pickle', 'rb') as handle:
-        word_docs_dict = pickle.load(handle)
+with open('data/inverted_index.pickle', 'rb') as handle:
+    word_docs_dict = pickle.load(handle)
 
+
+def inverted_index_match(user_input):
     user_input = [x for x in jieba.cut(user_input) if x not in stopwords]
 
+    # 因为后面要求交集，所以把用户输入的问题里，在倒排索引中不存在的词先删掉
     for word in user_input:
         if word not in word_docs_dict.keys():
             user_input.remove(word)

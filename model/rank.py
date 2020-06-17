@@ -26,7 +26,7 @@ class BM25(object):
             for k in tmp.keys():
                 self.df[k] = self.df.get(k, 0) + 1
         for k, v in self.df.items():
-            self.idf[k] = math.log(self.D-v+0.5) - math.log(v+0.5)
+            self.idf[k] = math.log(self.D+0.5) - math.log(v+0.5)
 
     def sim(self, user_input, index):
         score = 0
@@ -59,7 +59,7 @@ class BM25(object):
         s = BM25(cut_questions)
         scores = s.simall(user_input)
         question_scores = dict(zip(docs_questions, scores))
-        sorted_question_scores = sorted(question_scores.items(), key=lambda item:item[1])
+        sorted_question_scores = sorted(question_scores.items(), key=lambda item:item[1], reverse = True)
         print(sorted_question_scores)
         return sorted_question_scores
         

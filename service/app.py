@@ -23,6 +23,9 @@ def home():
 @app.route("/get")
 def get_bot_response():
     user_input = request.args.get('msg')
+    
+    sentvec_docs_questions = match_sentvec.sentvec_match(user_input)
+
     user_input_cut, index_docs_qid = match_inverted_index.inverted_index_match(user_input)
     index_docs_questions = []
     data = pd.read_csv('data/dataset.csv')
@@ -30,7 +33,6 @@ def get_bot_response():
         question = data.loc[data.qid == qid, 'question'].values[0]
         index_docs_questions.append(question)
 
-    sentvec_docs_questions = match_sentvec.sentvec_match(user_input)
     docs_questions = index_docs_questions + sentvec_docs_questions
     sorted_question_scores = BM25.rank(user_input_cut, docs_questions)    
     
