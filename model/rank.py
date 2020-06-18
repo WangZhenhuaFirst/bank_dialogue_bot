@@ -60,7 +60,7 @@ class BM25(object):
         scores = s.simall(user_input)
         question_scores = dict(zip(docs_questions, scores))
         sorted_question_scores = sorted(question_scores.items(), key=lambda item:item[1], reverse = True)
-        print(sorted_question_scores)
+        print(f"sorted_question_scores: {sorted_question_scores}")
         return sorted_question_scores
         
 
