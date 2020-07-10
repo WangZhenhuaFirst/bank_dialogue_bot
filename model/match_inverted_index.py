@@ -3,7 +3,7 @@ import pickle
 import jieba
 
 with open('data/stopwords.txt') as file:
-        stopwords = file.read().split('\n')
+    stopwords = file.read().split('\n')
 
 with open('data/inverted_index.pickle', 'rb') as handle:
     word_docs_dict = pickle.load(handle)
@@ -19,6 +19,7 @@ def inverted_index_match(user_input):
 
     docs_qid = []
 
+    # 如果用户只输入了1个关键词，就不用求交集了
     if len(user_input) == 1:
         docs_qid = word_docs_dict[user_input[0]]
     elif len(user_input) > 1:
@@ -31,6 +32,7 @@ def inverted_index_match(user_input):
         for idx, w in enumerate(user_input_left):
             docs_qid = set(docs_qid).intersection(set(word_docs_dict[w]))
 
+    # 最多只取10个备选答案
     if len(docs_qid) > 10:
         docs_qid = random.sample(docs_qid, 10)
 

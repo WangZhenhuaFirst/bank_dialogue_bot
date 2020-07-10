@@ -19,8 +19,9 @@ def cosine_similarity(x, y, norm=False):
     # f x == zero_list or y == zero_list:
     #    return float(1) if x == y else float(0)
 
-    res = np.array([[x[i] * y[i], x[i] * x[i], y[i] * y[i]] for i in range(len(x))])
-    s = np.sqrt(sum(res[:, 1])) * np.sqrt(sum(res[:, 2])) 
+    res = np.array([[x[i] * y[i], x[i] * x[i], y[i] * y[i]]
+                    for i in range(len(x))])
+    s = np.sqrt(sum(res[:, 1])) * np.sqrt(sum(res[:, 2]))
     if s == 0:
         cos = 0
     else:
@@ -35,4 +36,5 @@ if __name__ == '__main__':
     print(cosine_similarity([1, 1], [-1, -1]))  # -1.0
     print(cosine_similarity([1, 1], [2, 2]))  # 1.0
     print(cosine_similarity([3, 3], [4, 4]))  # 1.0
-    print(cosine_similarity([1, 2, 2, 1, 1, 1, 0], [1, 2, 2, 1, 1, 2, 1]))  # 0.938194187433
+    print(cosine_similarity([1, 2, 2, 1, 1, 1, 0],
+                            [1, 2, 2, 1, 1, 2, 1]))  # 0.938194187433
